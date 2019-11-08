@@ -1,0 +1,19 @@
+name: Merge Pull Request
+author: juliangruber
+description: 'A simple GitHub Action for merging pull requests'
+branding:
+  icon: 'git-pull-request'
+  color: blue
+inputs:
+  github-token:
+    description: 'GitHub Token'
+    required: true
+  number:
+    description: 'Pull Request number'
+    required: true
+  method:
+    description: 'Green button merge type (merge, squash, rebase)'
+    default: 'merge'
+runs:
+  using: 'node12'
+  main: 'index.js'
