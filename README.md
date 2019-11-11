@@ -6,7 +6,8 @@ A simple GitHub Action for merging pull requests.
 
 ```yaml
 steps:
-  - uses: juliangruber/merge-pull-request-action@master
+  - name: Merge Pull Request
+    uses: juliangruber/merge-pull-request-action@v1
     with:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       number: 1
