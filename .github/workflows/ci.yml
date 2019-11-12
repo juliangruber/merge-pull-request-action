@@ -7,7 +7,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Reopen Pull Request
-        uses: juliangruber/octokit-action@v1
+        uses: juliangruber/octokit-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           command: pulls.create
