@@ -6,6 +6,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - name: Reopen Pull Request
+        uses: juliangruber/octokit-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          command: pulls.create
+          title: Test
+          head: master
+          base: master
       - name: Merge Pull Request
         uses: ./
         with:
