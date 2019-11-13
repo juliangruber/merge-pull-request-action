@@ -18,7 +18,7 @@ steps:
 
 - [find-pull-request-action](https://github.com/juliangruber/find-pull-request-action) &mdash; Find a Pull Request
 - [approve-pull-request-action](https://github.com/juliangruber/approve-pull-request-action) &mdash; Approve a Pull Request
-- [octokit-action](https://github.com/juliangruber/merge-pull-request-action) &mdash; Generic Octokit.js Action
+- [octokit-action](https://github.com/juliangruber/octokit-action) &mdash; Generic Octokit.js Action
 
 ## License
 
