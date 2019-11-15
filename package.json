@@ -6,7 +6,8 @@
   "description": "A simple GitHub Action for merging pull requests",
   "repository": "juliangruber/merge-pull-request-action",
   "scripts": {
-    "test": "prettier-standard '**/*.js' ** standard"
+    "test": "prettier-standard '**/*.js' ** standard",
+    "postversion": "git tag v1"
   },
   "dependencies": {
     "@actions/core": "^1.2.0",
