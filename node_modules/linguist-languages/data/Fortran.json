@@ -1,0 +1,20 @@
+{
+  "name": "Fortran",
+  "type": "programming",
+  "color": "#4d41b1",
+  "extensions": [
+    ".f90",
+    ".f",
+    ".f03",
+    ".f08",
+    ".f77",
+    ".f95",
+    ".for",
+    ".fpp"
+  ],
+  "tmScope": "source.fortran.modern",
+  "aceMode": "text",
+  "codemirrorMode": "fortran",
+  "codemirrorMimeType": "text/x-fortran",
+  "languageId": 107
+}

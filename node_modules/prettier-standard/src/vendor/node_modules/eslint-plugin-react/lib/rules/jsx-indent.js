@@ -30,6 +30,8 @@
 
 'use strict';
 
+const matchAll = require('string.prototype.matchall');
+
 const astUtil = require('../util/ast');
 const docsUrl = require('../util/docsUrl');
 
@@ -95,8 +97,13 @@ module.exports = {
      * @private
      */
     function getFixerFunction(node, needed) {
-      return function (fixer) {
+      return function fix(fixer) {
         const indent = Array(needed + 1).join(indentChar);
+        if (node.type === 'JSXText' || node.type === 'Literal') {
+          const regExp = /\n[\t ]*(\S)/g;
+          const fixedText = node.raw.replace(regExp, (match, p1) => `\n${indent}${p1}`);
+          return fixer.replaceText(node, fixedText);
+        }
         return fixer.replaceTextRange(
           [node.range[0] - node.loc.start.column, node.range[0]],
           indent
@@ -200,6 +207,77 @@ module.exports = {
     }
 
     /**
+     * Check if the node is within a DoExpression block but not the first expression (which need to be indented)
+     * @param {ASTNode} node The node to check
+     * @return {Boolean} true if its the case, false if not
+     */
+    function isSecondOrSubsequentExpWithinDoExp(node) {
+      /*
+        It returns true when node.parent.parent.parent.parent matches:
+
+        DoExpression({
+          ...,
+          body: BlockStatement({
+            ...,
+            body: [
+              ...,  // 1-n times
+              ExpressionStatement({
+                ...,
+                expression: JSXElement({
+                  ...,
+                  openingElement: JSXOpeningElement()  // the node
+                })
+              }),
+              ...  // 0-n times
+            ]
+          })
+        })
+
+        except:
+
+        DoExpression({
+          ...,
+          body: BlockStatement({
+            ...,
+            body: [
+              ExpressionStatement({
+                ...,
+                expression: JSXElement({
+                  ...,
+                  openingElement: JSXOpeningElement()  // the node
+                })
+              }),
+              ...  // 0-n times
+            ]
+          })
+        })
+      */
+      const isInExpStmt = (
+        node.parent &&
+        node.parent.parent &&
+        node.parent.parent.type === 'ExpressionStatement'
+      );
+      if (!isInExpStmt) {
+        return false;
+      }
+
+      const expStmt = node.parent.parent;
+      const isInBlockStmtWithinDoExp = (
+        expStmt.parent &&
+        expStmt.parent.type === 'BlockStatement' &&
+        expStmt.parent.parent &&
+        expStmt.parent.parent.type === 'DoExpression'
+      );
+      if (!isInBlockStmtWithinDoExp) {
+        return false;
+      }
+
+      const blockStmt = expStmt.parent;
+      const blockStmtFirstExp = blockStmt.body[0];
+      return !(blockStmtFirstExp === expStmt);
+    }
+
+    /**
      * Check indent for nodes list
      * @param {ASTNode} node The node to check
      * @param {Number} indent needed indent
@@ -216,6 +294,29 @@ module.exports = {
         !isCorrectAlternateInCondExp
       ) {
         report(node, indent, nodeIndent);
+      }
+    }
+
+    /**
+     * Check indent for Literal Node or JSXText Node
+     * @param {ASTNode} node The node to check
+     * @param {Number} indent needed indent
+     */
+    function checkLiteralNodeIndent(node, indent) {
+      const value = node.value;
+      const regExp = indentType === 'space' ? /\n( *)[\t ]*\S/g : /\n(\t*)[\t ]*\S/g;
+      const nodeIndentsPerLine = Array.from(
+        matchAll(String(value), regExp),
+        match => (match[1] ? match[1].length : 0)
+      );
+      const hasFirstInLineNode = nodeIndentsPerLine.length > 0;
+      if (
+        hasFirstInLineNode &&
+        !nodeIndentsPerLine.every(actualIndent => actualIndent === indent)
+      ) {
+        nodeIndentsPerLine.forEach((nodeIndent) => {
+          report(node, indent, nodeIndent);
+        });
       }
     }
 
@@ -244,7 +345,8 @@ module.exports = {
       const indent = (
         prevToken.loc.start.line === node.loc.start.line ||
         isRightInLogicalExp(node) ||
-        isAlternateInConditionalExp(node)
+        isAlternateInConditionalExp(node) ||
+        isSecondOrSubsequentExpWithinDoExp(node)
       ) ? 0 : indentSize;
       checkNodesIndent(node, parentElementIndent + indent);
     }
@@ -268,6 +370,17 @@ module.exports = {
       checkNodesIndent(firstInLine, indent);
     }
 
+    function handleLiteral(node) {
+      if (!node.parent) {
+        return;
+      }
+      if (node.parent.type !== 'JSXElement' && node.parent.type !== 'JSXFragment') {
+        return;
+      }
+      const parentNodeIndent = getNodeIndent(node.parent);
+      checkLiteralNodeIndent(node, parentNodeIndent + indentSize);
+    }
+
     return {
       JSXOpeningElement: handleOpeningElement,
       JSXOpeningFragment: handleOpeningElement,
@@ -280,7 +393,9 @@ module.exports = {
         }
         const parentNodeIndent = getNodeIndent(node.parent);
         checkNodesIndent(node, parentNodeIndent + indentSize);
-      }
+      },
+      Literal: handleLiteral,
+      JSXText: handleLiteral
     };
   }
 };

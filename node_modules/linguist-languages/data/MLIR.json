@@ -1,0 +1,10 @@
+{
+  "name": "MLIR",
+  "type": "programming",
+  "extensions": [
+    ".mlir"
+  ],
+  "tmScope": "source.mlir",
+  "aceMode": "text",
+  "languageId": 448253929
+}

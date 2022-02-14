@@ -1,0 +1,13 @@
+{
+  "name": "BibTeX",
+  "type": "markup",
+  "group": "TeX",
+  "extensions": [
+    ".bib"
+  ],
+  "tmScope": "text.bibtex",
+  "aceMode": "tex",
+  "codemirrorMode": "stex",
+  "codemirrorMimeType": "text/x-stex",
+  "languageId": 982188347
+}

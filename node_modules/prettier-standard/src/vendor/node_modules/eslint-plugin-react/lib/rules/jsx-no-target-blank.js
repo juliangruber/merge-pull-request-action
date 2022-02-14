@@ -16,8 +16,15 @@ function isTargetBlank(attr) {
   return attr.name &&
     attr.name.name === 'target' &&
     attr.value &&
-    attr.value.type === 'Literal' &&
-    attr.value.value.toLowerCase() === '_blank';
+    ((
+      attr.value.type === 'Literal' &&
+      attr.value.value.toLowerCase() === '_blank'
+    ) || (
+      attr.value.type === 'JSXExpressionContainer' &&
+      attr.value.expression &&
+      attr.value.expression.value &&
+      attr.value.expression.value.toLowerCase() === '_blank'
+    ));
 }
 
 function hasExternalLink(element, linkAttribute) {
@@ -33,11 +40,20 @@ function hasDynamicLink(element, linkAttribute) {
     attr.value.type === 'JSXExpressionContainer');
 }
 
-function hasSecureRel(element) {
+function hasSecureRel(element, allowReferrer) {
   return element.attributes.find((attr) => {
     if (attr.type === 'JSXAttribute' && attr.name.name === 'rel') {
-      const tags = attr.value && attr.value.type === 'Literal' && attr.value.value.toLowerCase().split(' ');
-      return tags && (tags.indexOf('noopener') >= 0 && tags.indexOf('noreferrer') >= 0);
+      const value = attr.value &&
+        ((
+          attr.value.type === 'Literal' &&
+          attr.value.value
+        ) || (
+          attr.value.type === 'JSXExpressionContainer' &&
+          attr.value.expression &&
+          attr.value.expression.value
+        ));
+      const tags = value && value.toLowerCase && value.toLowerCase().split(' ');
+      return tags && tags.indexOf('noopener') >= 0 && (allowReferrer || tags.indexOf('noreferrer') >= 0);
     }
     return false;
   });
@@ -54,6 +70,9 @@ module.exports = {
     schema: [{
       type: 'object',
       properties: {
+        allowReferrer: {
+          type: 'boolean'
+        },
         enforceDynamicLinks: {
           enum: ['always', 'never']
         }
@@ -64,12 +83,17 @@ module.exports = {
 
   create(context) {
     const configuration = context.options[0] || {};
+    const allowReferrer = configuration.allowReferrer || false;
     const enforceDynamicLinks = configuration.enforceDynamicLinks || 'always';
     const components = linkComponentsUtil.getLinkComponents(context);
 
     return {
       JSXAttribute(node) {
-        if (!components.has(node.parent.name.name) || !isTargetBlank(node) || hasSecureRel(node.parent)) {
+        if (
+          !components.has(node.parent.name.name) ||
+          !isTargetBlank(node) ||
+          hasSecureRel(node.parent, allowReferrer)
+        ) {
           return;
         }
 

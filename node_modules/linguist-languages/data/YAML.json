@@ -1,0 +1,29 @@
+{
+  "name": "YAML",
+  "type": "data",
+  "tmScope": "source.yaml",
+  "aliases": [
+    "yml"
+  ],
+  "extensions": [
+    ".yml",
+    ".mir",
+    ".reek",
+    ".rviz",
+    ".sublime-syntax",
+    ".syntax",
+    ".yaml",
+    ".yaml-tmlanguage",
+    ".yml.mysql"
+  ],
+  "filenames": [
+    ".clang-format",
+    ".clang-tidy",
+    ".gemrc",
+    "glide.lock"
+  ],
+  "aceMode": "yaml",
+  "codemirrorMode": "yaml",
+  "codemirrorMimeType": "text/x-yaml",
+  "languageId": 407
+}

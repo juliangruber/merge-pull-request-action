@@ -1,0 +1,11 @@
+{
+  "name": "PostCSS",
+  "type": "markup",
+  "tmScope": "source.postcss",
+  "group": "CSS",
+  "extensions": [
+    ".pcss"
+  ],
+  "aceMode": "text",
+  "languageId": 262764437
+}

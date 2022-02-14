@@ -1,0 +1,11 @@
+{
+  "name": "Motorola 68K Assembly",
+  "type": "programming",
+  "group": "Assembly",
+  "extensions": [
+    ".X68"
+  ],
+  "tmScope": "source.m68k",
+  "aceMode": "assembly_x86",
+  "languageId": 477582706
+}

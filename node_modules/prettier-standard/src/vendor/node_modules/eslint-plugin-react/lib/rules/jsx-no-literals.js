@@ -26,6 +26,13 @@ module.exports = {
       properties: {
         noStrings: {
           type: 'boolean'
+        },
+        allowedStrings: {
+          type: 'array',
+          uniqueItems: true,
+          items: {
+            type: 'string'
+          }
         }
       },
       additionalProperties: false
@@ -33,9 +40,15 @@ module.exports = {
   },
 
   create(context) {
-    const isNoStrings = context.options[0] ? context.options[0].noStrings : false;
+    function trimIfString(val) {
+      return typeof val === 'string' ? val.trim() : val;
+    }
 
-    const message = isNoStrings ?
+    const defaults = {noStrings: false, allowedStrings: []};
+    const config = Object.assign({}, defaults, context.options[0] || {});
+    config.allowedStrings = new Set(config.allowedStrings.map(trimIfString));
+
+    const message = config.noStrings ?
       'Strings not allowed in JSX files' :
       'Missing JSX expression container around literal string';
 
@@ -55,12 +68,15 @@ module.exports = {
     }
 
     function getValidation(node) {
+      if (config.allowedStrings.has(trimIfString(node.value))) {
+        return false;
+      }
       const parent = getParentIgnoringBinaryExpressions(node);
       const standard = !/^[\s]+$/.test(node.value) &&
           typeof node.value === 'string' &&
           parent.type.indexOf('JSX') !== -1 &&
           parent.type !== 'JSXAttribute';
-      if (isNoStrings) {
+      if (config.noStrings) {
         return standard;
       }
       return standard && parent.type !== 'JSXExpressionContainer';
@@ -86,7 +102,7 @@ module.exports = {
 
       TemplateLiteral(node) {
         const parent = getParentIgnoringBinaryExpressions(node);
-        if (isNoStrings && parent.type === 'JSXExpressionContainer') {
+        if (config.noStrings && parent.type === 'JSXExpressionContainer') {
           reportLiteralNode(node);
         }
       }

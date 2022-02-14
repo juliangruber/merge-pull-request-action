@@ -1,0 +1,10 @@
+{
+  "name": "Inno Setup",
+  "type": "programming",
+  "extensions": [
+    ".iss"
+  ],
+  "tmScope": "none",
+  "aceMode": "text",
+  "languageId": 167
+}

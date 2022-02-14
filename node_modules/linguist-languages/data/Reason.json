@@ -1,0 +1,17 @@
+{
+  "name": "Reason",
+  "type": "programming",
+  "group": "OCaml",
+  "aceMode": "rust",
+  "codemirrorMode": "rust",
+  "codemirrorMimeType": "text/x-rustsrc",
+  "extensions": [
+    ".re",
+    ".rei"
+  ],
+  "interpreters": [
+    "ocaml"
+  ],
+  "tmScope": "source.reason",
+  "languageId": 869538413
+}

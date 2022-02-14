@@ -125,7 +125,7 @@ module.exports = {
     // Public
     // --------------------------------------------------------------------------
 
-    const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
+    const regExpRegExp = /\/(.*)\/([gimsuy]*)/;
 
     /**
      * Get indexes of the matching patterns in methods order configuration
@@ -148,8 +148,12 @@ module.exports = {
           if (method.typeAnnotation) {
             methodGroupIndexes.push(groupIndex);
           }
+        } else if (currentGroup === 'static-variables') {
+          if (method.staticVariable) {
+            methodGroupIndexes.push(groupIndex);
+          }
         } else if (currentGroup === 'static-methods') {
-          if (method.static) {
+          if (method.staticMethod) {
             methodGroupIndexes.push(groupIndex);
           }
         } else if (currentGroup === 'instance-variables') {
@@ -380,7 +384,13 @@ module.exports = {
         name: getPropertyName(node),
         getter: node.kind === 'get',
         setter: node.kind === 'set',
-        static: node.static,
+        staticVariable: node.static &&
+          node.type === 'ClassProperty' &&
+          (!node.value || !astUtil.isFunctionLikeExpression(node.value)),
+        staticMethod: node.static &&
+          (node.type === 'ClassProperty' || node.type === 'MethodDefinition') &&
+          node.value &&
+          (astUtil.isFunctionLikeExpression(node.value)),
         instanceVariable: !node.static &&
           node.type === 'ClassProperty' &&
           (!node.value || !astUtil.isFunctionLikeExpression(node.value)),
@@ -417,7 +427,7 @@ module.exports = {
     }
 
     return {
-      'Program:exit': function () {
+      'Program:exit'() {
         const list = components.list();
         Object.keys(list).forEach((component) => {
           const properties = astUtil.getComponentProperties(list[component].node);

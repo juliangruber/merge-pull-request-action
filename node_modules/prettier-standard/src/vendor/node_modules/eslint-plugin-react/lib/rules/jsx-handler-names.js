@@ -21,30 +21,74 @@ module.exports = {
     },
 
     schema: [{
-      type: 'object',
-      properties: {
-        eventHandlerPrefix: {
-          type: 'string'
-        },
-        eventHandlerPropPrefix: {
-          type: 'string'
+      anyOf: [
+        {
+          type: 'object',
+          properties: {
+            eventHandlerPrefix: {type: 'string'},
+            eventHandlerPropPrefix: {type: 'string'},
+            checkLocalVariables: {type: 'boolean'}
+          },
+          additionalProperties: false
+        }, {
+          type: 'object',
+          properties: {
+            eventHandlerPrefix: {type: 'string'},
+            eventHandlerPropPrefix: {
+              type: 'boolean',
+              enum: [false]
+            },
+            checkLocalVariables: {type: 'boolean'}
+          },
+          additionalProperties: false
+        }, {
+          type: 'object',
+          properties: {
+            eventHandlerPrefix: {
+              type: 'boolean',
+              enum: [false]
+            },
+            eventHandlerPropPrefix: {type: 'string'},
+            checkLocalVariables: {type: 'boolean'}
+          },
+          additionalProperties: false
+        }, {
+          type: 'object',
+          properties: {
+            checkLocalVariables: {type: 'boolean'}
+          },
+          additionalProperties: false
         }
-      },
-      additionalProperties: false
+      ]
     }]
   },
 
   create(context) {
-    const configuration = context.options[0] || {};
-    const eventHandlerPrefix = configuration.eventHandlerPrefix || 'handle';
-    const eventHandlerPropPrefix = configuration.eventHandlerPropPrefix || 'on';
+    function isPrefixDisabled(prefix) {
+      return prefix === false;
+    }
 
-    const EVENT_HANDLER_REGEX = new RegExp(`^((props\\.${eventHandlerPropPrefix})|((.*\\.)?${eventHandlerPrefix}))[A-Z].*$`);
-    const PROP_EVENT_HANDLER_REGEX = new RegExp(`^(${eventHandlerPropPrefix}[A-Z].*|ref)$`);
+    const configuration = context.options[0] || {};
+
+    const eventHandlerPrefix = isPrefixDisabled(configuration.eventHandlerPrefix) ?
+      null :
+      configuration.eventHandlerPrefix || 'handle';
+    const eventHandlerPropPrefix = isPrefixDisabled(configuration.eventHandlerPropPrefix) ?
+      null :
+      configuration.eventHandlerPropPrefix || 'on';
+
+    const EVENT_HANDLER_REGEX = !eventHandlerPrefix ?
+      null :
+      new RegExp(`^((props\\.${eventHandlerPropPrefix || ''})|((.*\\.)?${eventHandlerPrefix}))[A-Z].*$`);
+    const PROP_EVENT_HANDLER_REGEX = !eventHandlerPropPrefix ?
+      null :
+      new RegExp(`^(${eventHandlerPropPrefix}[A-Z].*|ref)$`);
+
+    const checkLocal = !!configuration.checkLocalVariables;
 
     return {
       JSXAttribute(node) {
-        if (!node.value || !node.value.expression || !node.value.expression.object) {
+        if (!node.value || !node.value.expression || (!checkLocal && !node.value.expression.object)) {
           return;
         }
 
@@ -55,15 +99,23 @@ module.exports = {
           return;
         }
 
-        const propIsEventHandler = PROP_EVENT_HANDLER_REGEX.test(propKey);
-        const propFnIsNamedCorrectly = EVENT_HANDLER_REGEX.test(propValue);
+        const propIsEventHandler = PROP_EVENT_HANDLER_REGEX && PROP_EVENT_HANDLER_REGEX.test(propKey);
+        const propFnIsNamedCorrectly = EVENT_HANDLER_REGEX && EVENT_HANDLER_REGEX.test(propValue);
 
-        if (propIsEventHandler && !propFnIsNamedCorrectly) {
+        if (
+          propIsEventHandler &&
+          propFnIsNamedCorrectly !== null &&
+          !propFnIsNamedCorrectly
+        ) {
           context.report({
             node,
             message: `Handler function for ${propKey} prop key must begin with '${eventHandlerPrefix}'`
           });
-        } else if (propFnIsNamedCorrectly && !propIsEventHandler) {
+        } else if (
+          propFnIsNamedCorrectly &&
+          propIsEventHandler !== null &&
+          !propIsEventHandler
+        ) {
           context.report({
             node,
             message: `Prop key for ${propValue} must begin with '${eventHandlerPropPrefix}'`

@@ -13,6 +13,7 @@ const docsUrl = require('../util/docsUrl');
 // ------------------------------------------------------------------------------
 
 const STATIC_CLASS_PROPERTIES = ['propTypes', 'contextTypes', 'childContextTypes', 'defaultProps'];
+const STATIC_LIFECYCLE_METHODS = ['getDerivedStateFromProps'];
 const LIFECYCLE_METHODS = [
   'getDerivedStateFromProps',
   'componentWillMount',
@@ -49,7 +50,8 @@ module.exports = {
       if (node.name !== 'isRequired') {
         context.report({
           node,
-          message: `Typo in prop type chain qualifier: ${node.name}`
+          message: 'Typo in prop type chain qualifier: {{name}}',
+          data: {name: node.name}
         });
       }
     }
@@ -58,7 +60,8 @@ module.exports = {
       if (node.name && !PROP_TYPES.some(propTypeName => propTypeName === node.name)) {
         context.report({
           node,
-          message: `Typo in declared prop type: ${node.name}`
+          message: 'Typo in declared prop type: {{name}}',
+          data: {name: node.name}
         });
       }
     }
@@ -124,9 +127,10 @@ module.exports = {
       }
     }
 
-    function reportErrorIfPropertyCasingTypo(node, propertyName, isClassProperty) {
+    function reportErrorIfPropertyCasingTypo(propertyValue, propertyKey, isClassProperty) {
+      const propertyName = propertyKey.name;
       if (propertyName === 'propTypes' || propertyName === 'contextTypes' || propertyName === 'childContextTypes') {
-        checkValidPropObject(node);
+        checkValidPropObject(propertyValue);
       }
       STATIC_CLASS_PROPERTIES.forEach((CLASS_PROP) => {
         if (propertyName && CLASS_PROP.toLowerCase() === propertyName.toLowerCase() && CLASS_PROP !== propertyName) {
@@ -134,7 +138,7 @@ module.exports = {
             'Typo in static class property declaration' :
             'Typo in property declaration';
           context.report({
-            node,
+            node: propertyKey,
             message
           });
         }
@@ -142,11 +146,26 @@ module.exports = {
     }
 
     function reportErrorIfLifecycleMethodCasingTypo(node) {
-      LIFECYCLE_METHODS.forEach((method) => {
-        if (method.toLowerCase() === node.key.name.toLowerCase() && method !== node.key.name) {
+      let nodeKeyName = node.key.name;
+      if (node.key.type === 'Literal') {
+        nodeKeyName = node.key.value;
+      }
+
+      STATIC_LIFECYCLE_METHODS.forEach((method) => {
+        if (!node.static && nodeKeyName.toLowerCase() === method.toLowerCase()) {
           context.report({
             node,
-            message: 'Typo in component lifecycle method declaration'
+            message: `Lifecycle method should be static: ${nodeKeyName}`
+          });
+        }
+      });
+
+      LIFECYCLE_METHODS.forEach((method) => {
+        if (method.toLowerCase() === nodeKeyName.toLowerCase() && method !== nodeKeyName) {
+          context.report({
+            node,
+            message: 'Typo in component lifecycle method declaration: {{actual}} should be {{expected}}',
+            data: {actual: nodeKeyName, expected: method}
           });
         }
       });
@@ -176,9 +195,7 @@ module.exports = {
           return;
         }
 
-        const tokens = context.getFirstTokens(node, 2);
-        const propertyName = tokens[1].value;
-        reportErrorIfPropertyCasingTypo(node.value, propertyName, true);
+        reportErrorIfPropertyCasingTypo(node.value, node.key, true);
       },
 
       MemberExpression(node) {
@@ -198,7 +215,7 @@ module.exports = {
           (utils.isES6Component(relatedComponent.node) || utils.isReturningJSX(relatedComponent.node)) &&
           (node.parent && node.parent.type === 'AssignmentExpression' && node.parent.right)
         ) {
-          reportErrorIfPropertyCasingTypo(node.parent.right, propertyName, true);
+          reportErrorIfPropertyCasingTypo(node.parent.right, node.property, true);
         }
       },
 
@@ -218,7 +235,7 @@ module.exports = {
         }
 
         node.properties.forEach((property) => {
-          reportErrorIfPropertyCasingTypo(property.value, property.key.name, false);
+          reportErrorIfPropertyCasingTypo(property.value, property.key, false);
           reportErrorIfLifecycleMethodCasingTypo(property);
         });
       }

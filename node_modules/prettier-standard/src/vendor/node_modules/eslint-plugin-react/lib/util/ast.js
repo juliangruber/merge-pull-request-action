@@ -8,6 +8,7 @@
  * Find a return statment in the current node
  *
  * @param {ASTNode} node The AST node being checked
+ * @returns {ASTNode | false}
  */
 function findReturnStatement(node) {
   if (
@@ -133,15 +134,6 @@ function isFunction(node) {
 }
 
 /**
- * Checks if the node is an arrow function.
- * @param {ASTNode} node The node to check
- * @return {Boolean} true if it's an arrow function
- */
-function isArrowFunction(node) {
-  return node.type === 'ArrowFunctionExpression';
-}
-
-/**
  * Checks if the node is a class.
  * @param {ASTNode} node The node to check
  * @return {Boolean} true if it's a class
@@ -153,6 +145,7 @@ function isClass(node) {
 /**
  * Removes quotes from around an identifier.
  * @param {string} string the identifier to strip
+ * @returns {string}
  */
 function stripQuotes(string) {
   return string.replace(/^'|'$/g, '');
@@ -172,6 +165,12 @@ function getKeyValue(context, node) {
       stripQuotes(tokens[0].value)
     );
   }
+  if (node.type === 'GenericTypeAnnotation') {
+    return node.id.name;
+  }
+  if (node.type === 'ObjectTypeAnnotation') {
+    return;
+  }
   const key = node.key || node.argument;
   return key.type === 'Identifier' ? key.name : key.value;
 }
@@ -189,6 +188,17 @@ function isAssignmentLHS(node) {
   );
 }
 
+/**
+ * Extracts the expression node that is wrapped inside a TS type assertion
+ *
+ * @param {ASTNode} node - potential TS node
+ * @returns {ASTNode} - unwrapped expression node
+ */
+function unwrapTSAsExpression(node) {
+  if (node && node.type === 'TSAsExpression') return node.expression;
+  return node;
+}
+
 module.exports = {
   findReturnStatement,
   getFirstNodeInLine,
@@ -196,10 +206,10 @@ module.exports = {
   getPropertyNameNode,
   getComponentProperties,
   getKeyValue,
-  isArrowFunction,
   isAssignmentLHS,
   isClass,
   isFunction,
   isFunctionLikeExpression,
-  isNodeFirstInLine
+  isNodeFirstInLine,
+  unwrapTSAsExpression
 };

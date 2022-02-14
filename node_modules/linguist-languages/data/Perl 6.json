@@ -1,0 +1,29 @@
+{
+  "name": "Perl 6",
+  "type": "programming",
+  "color": "#0000fb",
+  "extensions": [
+    ".6pl",
+    ".6pm",
+    ".nqp",
+    ".p6",
+    ".p6l",
+    ".p6m",
+    ".pl",
+    ".pl6",
+    ".pm",
+    ".pm6",
+    ".t"
+  ],
+  "interpreters": [
+    "perl6"
+  ],
+  "aliases": [
+    "perl6"
+  ],
+  "tmScope": "source.perl6fe",
+  "aceMode": "perl",
+  "codemirrorMode": "perl",
+  "codemirrorMimeType": "text/x-perl",
+  "languageId": 283
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Unity3D Asset",
+  "type": "data",
+  "aceMode": "yaml",
+  "codemirrorMode": "yaml",
+  "codemirrorMimeType": "text/x-yaml",
+  "extensions": [
+    ".anim",
+    ".asset",
+    ".mat",
+    ".meta",
+    ".prefab",
+    ".unity"
+  ],
+  "tmScope": "source.yaml",
+  "languageId": 380
+}
