@@ -7,11 +7,20 @@ const main = async () => {
   const token = core.getInput('github-token')
   const number = core.getInput('number')
   const method = core.getInput('method')
+  const repoString = core.getInput('repo')
+
+  let repoObject
+  if (repoString) {
+    const [owner, repo] = repoString.split('/')
+    repoObject = { owner, repo }
+  } else {
+    repoObject = context.repo
+  }
 
   const octokit = new GitHub(token)
 
   await octokit.pulls.merge({
-    ...context.repo,
+    ...repoObject,
     pull_number: number,
     merge_method: method
   })

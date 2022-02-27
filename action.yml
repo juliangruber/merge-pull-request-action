@@ -14,6 +14,10 @@ inputs:
   method:
     description: 'Green button merge type (merge, squash, rebase)'
     default: 'merge'
+    required: true
+  repo:
+    description: 'Pull Request repo in owner/repo format'
+    required: false
 runs:
   using: 'node12'
   main: 'index.js'

@@ -12,6 +12,7 @@ steps:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       number: 1
       method: squash
+      repo: juliangruber/octokit-action
 ```
 
 ## Related
