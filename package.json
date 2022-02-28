@@ -7,7 +7,7 @@
   "repository": "juliangruber/merge-pull-request-action",
   "scripts": {
     "test": "prettier-standard '**/*.js' ** standard",
-    "postversion": "git tag v1"
+    "postversion": "git tag -f v1"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
