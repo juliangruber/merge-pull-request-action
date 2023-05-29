@@ -15,6 +15,12 @@ steps:
       repo: juliangruber/octokit-action
 ```
 
+## Outputs
+
+### `commit`
+
+commit sha
+
 ## Related
 
 - [find-pull-request-action](https://github.com/juliangruber/find-pull-request-action) &mdash; Find a Pull Request
