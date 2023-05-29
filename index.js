@@ -25,8 +25,9 @@ const main = async () => {
     merge_method: method
   })
 
-  console.log(`commit sha : ${response.sha}`);
-  core.setOutput("commit", response.sha);
+  console.log(response);
+  console.log(`commit sha : ${response.data.sha}`);
+  core.setOutput("commit", response.data.sha);
 }
 
 main().catch(err => core.setFailed(err.message))
