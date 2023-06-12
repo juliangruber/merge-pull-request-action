@@ -12,7 +12,7 @@ steps:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       number: 1
       method: squash # merge rebase
-      repo: juliangruber/octokit-action      
+      repo: juliangruber/octokit-action
 ```
 
 ## Action Outputs
