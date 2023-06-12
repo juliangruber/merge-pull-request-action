@@ -20,7 +20,7 @@ inputs:
     required: false
 outputs:
   commit:
-    description: 'commit sha of merge commit'    
+    description: 'commit sha of merge commit'
 runs:
   using: 'node16'
   main: 'index.js'
