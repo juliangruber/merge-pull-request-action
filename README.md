@@ -15,6 +15,12 @@ steps:
       repo: juliangruber/octokit-action
 ```
 
+## Action Outputs
+
+The following outputs can be used by subsequent workflow steps.
+
+- `commit` - The commit sha of this PR merged
+
 ## Related
 
 - [find-pull-request-action](https://github.com/juliangruber/find-pull-request-action) &mdash; Find a Pull Request

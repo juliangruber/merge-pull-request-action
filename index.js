@@ -19,11 +19,13 @@ const main = async () => {
 
   const octokit = new GitHub(token)
 
-  await octokit.pulls.merge({
+  const response = await octokit.pulls.merge({
     ...repoObject,
     pull_number: number,
     merge_method: method
   })
+
+  core.setOutput('commit', response.data.sha);
 }
 
 main().catch(err => core.setFailed(err.message))
