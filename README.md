@@ -12,14 +12,14 @@ steps:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       number: 1
       method: squash # merge rebase
-      repo: juliangruber/octokit-action
+      repo: juliangruber/octokit-action      
 ```
 
-## Outputs
+## Action Outputs
 
-### `commit`
+The following outputs can be used by subsequent workflow steps.
 
-commit sha
+- `commit` - The commit sha of this PR merged
 
 ## Related
 
