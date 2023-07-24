@@ -4,7 +4,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: juliangruber/merge-pull-request-action@master
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Find latest commit in test branch
+        uses: juliangruber/octokit-action@master
+        id: get-branch
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          command: repos.getBranch
+          branch: test
+      - name: Create a new branch
+        uses: juliangruber/octokit-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          command: git.createRef
+          ref: refs/heads/bloop
+          sha: master
+      # - name: Reopen Pull Request
+      #   uses: juliangruber/octokit-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     command: pulls.create
+      #     title: Test
+      #     head: master
+      #     base: master
+      - name: Merge Pull Request
+        uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           number: 1
