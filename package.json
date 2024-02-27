@@ -1,7 +1,7 @@
 {
   "name": "merge-pull-request-action",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "MIT",
   "description": "A simple GitHub Action for merging pull requests",
   "repository": "juliangruber/merge-pull-request-action",
