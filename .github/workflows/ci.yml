@@ -6,10 +6,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: npm install and build
-        run: |
-          npm ci
-          npm run build
+      - run: npm ci
       - uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
