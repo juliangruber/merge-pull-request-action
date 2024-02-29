@@ -1,12 +1,21 @@
 name: CI
 on: [push]
 jobs:
-  build:
+  build-with-fresh-deps:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v1
       - run: npm ci
+      - uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          number: 1
+  build-with-installed-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
       - uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
