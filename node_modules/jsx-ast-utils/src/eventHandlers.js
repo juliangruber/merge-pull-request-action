@@ -1,3 +1,5 @@
+import flat from 'array.prototype.flat';
+import values from 'object.values';
 
 /**
  * Common event handlers for JSX element event binding.
@@ -103,11 +105,6 @@ const eventHandlersByType = {
   ],
 };
 
-const eventHandlers = Object.keys(eventHandlersByType).reduce(
-  (accumulator, type) => accumulator.concat(eventHandlersByType[type]),
-  [],
-);
-
-export default eventHandlers;
+export default flat(values(eventHandlersByType));
 
 export { eventHandlersByType };
