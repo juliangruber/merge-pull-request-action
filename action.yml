@@ -22,5 +22,5 @@ outputs:
   commit:
     description: 'Commit sha of merge commit'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'index.js'
